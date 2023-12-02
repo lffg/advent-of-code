@@ -17,8 +17,8 @@ fn part2(input: &str) -> u32 {
     ];
 
     fn try_get_digit(s: &str) -> Option<u32> {
-        if let digit @ '0'..='9' = s.chars().next()? {
-            return Some(digit.to_digit(10).unwrap());
+        if let Some(digit) = s.chars().next()?.to_digit(10) {
+            return Some(digit);
         }
         for (i, sd) in SPELLED_DIGITS.into_iter().enumerate() {
             if s.starts_with(sd) {
