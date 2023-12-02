@@ -19,10 +19,36 @@ fn part1(input: &str) -> u32 {
         .sum()
 }
 
+fn part2(input: &str) -> u32 {
+    fn game_power(game: &Game) -> u32 {
+        game.sets
+            .iter()
+            // Create a hashmap with the biggest required value for each color.
+            .fold(HashMap::new(), |mut map, set| {
+                for (color, &used) in &set.colors {
+                    let val = map.entry(*color).or_default();
+                    if *val < used {
+                        *val = used;
+                    }
+                }
+                map
+            })
+            .values()
+            .product()
+    }
+
+    input
+        .lines()
+        .map(|line| line.parse::<Game>().expect("syntactically correct game"))
+        .map(|game| game_power(&game))
+        .sum()
+}
+
 fn main() {
     static INPUT: &str = include_str!("input.txt");
 
     println!("part1: {}", part1(INPUT));
+    println!("part2: {}", part2(INPUT));
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
@@ -142,6 +168,21 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
             ),
             8
+        );
+    }
+
+    #[test]
+    fn test_part2() {
+        assert_eq!(
+            part2(
+                "\
+Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+            ),
+            2286
         );
     }
 }
