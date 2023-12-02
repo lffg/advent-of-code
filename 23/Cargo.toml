@@ -2,5 +2,5 @@
 members = ["day*"]
 resolver = "2"
 
-[workspace.package]
-edition = "2021"
+[workspace.dependencies]
+nom = "7"
