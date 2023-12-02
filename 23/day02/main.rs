@@ -59,11 +59,11 @@ enum Color {
 }
 
 impl Color {
-    pub fn maximum_allowed(&self) -> u32 {
+    pub fn maximum_allowed(self) -> u32 {
         match self {
-            Color::Red => 12,
-            Color::Green => 13,
-            Color::Blue => 14,
+            Self::Red => 12,
+            Self::Green => 13,
+            Self::Blue => 14,
         }
     }
 }
@@ -103,7 +103,7 @@ mod parsers {
     use super::*;
 
     // Game 51: 2 green, 6 blue; 1 green, 10 blue, 1 red; 3 blue, 2 green
-    pub(crate) fn game(input: &str) -> IResult<&str, Game> {
+    pub fn game(input: &str) -> IResult<&str, Game> {
         let (input, (_, _, id, _, _, sets)) = tuple((
             //
             tag("Game"),

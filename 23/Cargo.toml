@@ -4,3 +4,10 @@ resolver = "2"
 
 [workspace.dependencies]
 nom = "7"
+
+[workspace.lints.clippy]
+# Groups
+all = "warn"
+pedantic = "warn"
+# Individual lints
+wildcard_imports = { level = "allow", priority = 2 }

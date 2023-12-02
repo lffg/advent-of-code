@@ -4,7 +4,7 @@ fn part1(input: &str) -> u32 {
         let a = iter.next().expect("one digit");
         // If there is a single digit in the line, it won't be encountered
         // again since the iterator already passed over it.
-        let b = iter.rev().next().unwrap_or(a);
+        let b = iter.next_back().unwrap_or(a);
         a * 10 + b
     }
 
@@ -20,9 +20,9 @@ fn part2(input: &str) -> u32 {
         if let Some(digit) = s.chars().next()?.to_digit(10) {
             return Some(digit);
         }
-        for (i, sd) in SPELLED_DIGITS.into_iter().enumerate() {
+        for (i, sd) in SPELLED_DIGITS.iter().enumerate() {
             if s.starts_with(sd) {
-                return Some(i as u32 + 1);
+                return Some(u32::try_from(i).unwrap() + 1);
             }
         }
         None
