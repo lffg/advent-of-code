@@ -94,7 +94,7 @@ mod parsers {
         branch::alt,
         bytes::complete::tag,
         character::complete::digit1,
-        combinator::{eof, map, map_res, recognize},
+        combinator::{eof, map_res, recognize, value},
         multi::separated_list1,
         sequence::tuple,
         IResult,
@@ -136,9 +136,9 @@ mod parsers {
     // green
     fn color(input: &str) -> IResult<&str, Color> {
         alt((
-            map(tag("red"), |_| Color::Red),
-            map(tag("green"), |_| Color::Green),
-            map(tag("blue"), |_| Color::Blue),
+            value(Color::Red, tag("red")),
+            value(Color::Green, tag("green")),
+            value(Color::Blue, tag("blue")),
         ))(input)
     }
 
