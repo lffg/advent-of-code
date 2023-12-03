@@ -1,3 +1,5 @@
+static INPUT: &str = include_str!("input.txt");
+
 fn part1(input: &str) -> u32 {
     fn parse_line(line: &str) -> u32 {
         let mut iter = line.chars().filter_map(|c| c.to_digit(10));
@@ -49,8 +51,6 @@ fn part2(input: &str) -> u32 {
 }
 
 fn main() {
-    static INPUT: &str = include_str!("input.txt");
-
     println!("part1: {}", part1(INPUT));
     println!("part2: {}", part2(INPUT));
 }
@@ -86,5 +86,11 @@ zoneight234
             ),
             281
         );
+    }
+
+    #[test]
+    fn test_answers() {
+        assert_eq!(part1(INPUT), 54877);
+        assert_eq!(part2(INPUT), 54100);
     }
 }
