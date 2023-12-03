@@ -1,5 +1,7 @@
 use std::{collections::HashMap, str::FromStr};
 
+static INPUT: &str = include_str!("input.txt");
+
 fn part1(input: &str) -> u32 {
     fn valid_set(set: &Set) -> bool {
         set.colors
@@ -45,8 +47,6 @@ fn part2(input: &str) -> u32 {
 }
 
 fn main() {
-    static INPUT: &str = include_str!("input.txt");
-
     println!("part1: {}", part1(INPUT));
     println!("part2: {}", part2(INPUT));
 }
@@ -94,7 +94,7 @@ mod parsers {
         branch::alt,
         bytes::complete::tag,
         character::complete::digit1,
-        combinator::{map, map_res, opt, recognize},
+        combinator::{eof, map, map_res, recognize},
         multi::separated_list1,
         sequence::tuple,
         IResult,
@@ -104,33 +104,32 @@ mod parsers {
 
     // Game 51: 2 green, 6 blue; 1 green, 10 blue, 1 red; 3 blue, 2 green
     pub fn game(input: &str) -> IResult<&str, Game> {
-        let (input, (_, _, id, _, _, sets)) = tuple((
+        let (input, (_, id, _, sets, _)) = tuple((
             //
-            tag("Game"),
-            space_opt,
+            tag("Game "),
             number,
-            tag(":"),
-            space_opt,
+            tag(": "),
             sets,
+            eof,
         ))(input)?;
         Ok((input, Game { id, sets }))
     }
 
     // 2 green, 6 blue; 1 green, 10 blue, 1 red; 3 blue, 2 green
     fn sets(input: &str) -> IResult<&str, Vec<Set>> {
-        separated_list1(tuple((tag(";"), space_opt)), set)(input)
+        separated_list1(tag("; "), set)(input)
     }
 
     // 2 green, 6 blue
     fn set(input: &str) -> IResult<&str, Set> {
-        let (input, entries) = separated_list1(tuple((tag(","), space_opt)), color_count)(input)?;
+        let (input, entries) = separated_list1(tag(", "), color_count)(input)?;
         let colors = entries.into_iter().collect();
         Ok((input, Set { colors }))
     }
 
     // 2 green
     fn color_count(input: &str) -> IResult<&str, (Color, u32)> {
-        let (input, (count, _, color)) = tuple((number, space_opt, color))(input)?;
+        let (input, (count, _, color)) = tuple((number, tag(" "), color))(input)?;
         Ok((input, (color, count)))
     }
 
@@ -141,10 +140,6 @@ mod parsers {
             map(tag("green"), |_| Color::Green),
             map(tag("blue"), |_| Color::Blue),
         ))(input)
-    }
-
-    fn space_opt(input: &str) -> IResult<&str, Option<&str>> {
-        opt(tag(" "))(input)
     }
 
     fn number(input: &str) -> IResult<&str, u32> {
@@ -184,5 +179,11 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
             ),
             2286
         );
+    }
+
+    #[test]
+    fn test_answers() {
+        assert_eq!(part1(INPUT), 1931);
+        assert_eq!(part2(INPUT), 83105);
     }
 }
