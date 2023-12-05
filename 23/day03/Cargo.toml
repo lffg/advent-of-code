@@ -1,0 +1,13 @@
+[package]
+name = "day03"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "main"
+path = "main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
