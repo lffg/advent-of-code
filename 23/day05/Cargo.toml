@@ -11,4 +11,6 @@ path = "main.rs"
 workspace = true
 
 [dependencies]
+indicatif = { workspace = true, features = ["rayon"] }
 nom.workspace = true
+rayon.workspace = true

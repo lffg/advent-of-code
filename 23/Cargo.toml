@@ -3,7 +3,9 @@ members = ["day*"]
 resolver = "2"
 
 [workspace.dependencies]
+indicatif = "0.17"
 nom = "7"
+rayon = "1.8"
 
 [workspace.lints.clippy]
 # Groups

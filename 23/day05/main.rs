@@ -1,22 +1,25 @@
 use std::collections::HashMap;
 
+use indicatif::{ParallelProgressIterator as _, ProgressIterator as _};
+use rayon::iter::{IntoParallelIterator as _, ParallelIterator as _};
+
 static INPUT: &str = include_str!("input.txt");
 
-fn part1(input: &str) -> usize {
-    fn convert<'a>(cs: &'a Conversions<'a>, from: &str, to: &str, value: usize) -> usize {
-        if from == to {
-            return value;
-        }
-        let conversion = &cs[from];
-        let mapped_value = conversion
-            .range_sets
-            .iter()
-            .find_map(|set| set.convert(value))
-            // If there is no conversion, the value is mapped to itself.
-            .unwrap_or(value);
-        convert(cs, conversion.to, to, mapped_value)
+fn convert<'a>(cs: &'a Conversions<'a>, from: &str, to: &str, value: usize) -> usize {
+    if from == to {
+        return value;
     }
+    let conversion = &cs[from];
+    let mapped_value = conversion
+        .range_sets
+        .iter()
+        .find_map(|set| set.convert(value))
+        // If there is no conversion, the value is mapped to itself.
+        .unwrap_or(value);
+    convert(cs, conversion.to, to, mapped_value)
+}
 
+fn part1(input: &str) -> usize {
     let almanac = parsers::parse_almanac(input).unwrap();
 
     almanac
@@ -27,8 +30,32 @@ fn part1(input: &str) -> usize {
         .unwrap()
 }
 
-fn part2(_input: &str) -> usize {
-    0
+fn part2(input: &str) -> usize {
+    fn pairs<T, I>(iter: impl IntoIterator<Item = T, IntoIter = I>) -> impl Iterator<Item = (T, T)>
+    where
+        I: Iterator<Item = T>,
+    {
+        let mut iter = iter.into_iter();
+        std::iter::from_fn(move || {
+            let a = iter.next()?;
+            let b = iter.next().expect("elements pairwise");
+            Some((a, b))
+        })
+    }
+
+    let almanac = parsers::parse_almanac(input).unwrap();
+
+    let len = almanac.seeds.len();
+    let seeds: Vec<_> = pairs(almanac.seeds)
+        .progress_count((len / 2) as u64)
+        .flat_map(|(lo, len)| lo..(lo + len))
+        .collect();
+    seeds
+        .into_par_iter()
+        .progress()
+        .map(|seed| convert(&almanac.conversions, "seed", "location", seed))
+        .min()
+        .unwrap()
 }
 
 fn main() {
@@ -238,13 +265,13 @@ humidity-to-location map:
 60 56 37
 56 93 4"
             ),
-            000
+            46
         );
     }
 
     #[test]
     fn test_answers() {
         assert_eq!(part1(INPUT), 825516882);
-        assert_eq!(part2(INPUT), 0);
+        // assert_eq!(part2(INPUT), 0);
     }
 }
