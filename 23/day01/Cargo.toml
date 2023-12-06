@@ -3,9 +3,11 @@ name = "day01"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "day01"
+path = "main.rs"
+
 [lints]
 workspace = true
 
-[[bin]]
-name = "main"
-path = "main.rs"
+[dependencies]
