@@ -2,23 +2,60 @@ use std::collections::HashSet;
 
 static INPUT: &str = include_str!("input.txt");
 
-fn part1(input: &str) -> u32 {
-    fn card_points(card: Card) -> u32 {
-        let winning: HashSet<u32> = card.winning.into_iter().collect();
-        let wins = card.have.iter().filter(|n| winning.contains(n)).count();
+fn card_wins(card: &Card) -> usize {
+    let winning: HashSet<usize> = card.winning.iter().copied().collect();
+    card.have.iter().filter(|n| winning.contains(n)).count()
+}
+
+fn part1(input: &str) -> usize {
+    fn card_points(card: &Card) -> usize {
+        let wins = card_wins(card);
         if 0 < wins {
-            2_u32.pow(u32::try_from(wins).unwrap() - 1)
+            2_usize.pow(u32::try_from(wins - 1).unwrap())
         } else {
             0
         }
     }
-
     let table = parsers::parse_table(input).unwrap();
-    table.into_iter().map(card_points).sum()
+    table.iter().map(card_points).sum()
 }
 
-fn part2(_input: &str) -> u32 {
-    0
+fn part2(input: &str) -> usize {
+    let table = parsers::parse_table(input).unwrap();
+
+    // Map (CardNumber - 1) to the number of copies of the corresponding Card.
+    // Initialized with ones since initially we have a single of each card.
+    //
+    // In this case, since the input is sequential and contiguous, we don't have
+    // to use a hash map.
+    let mut copies = vec![1; table.len()];
+
+    for card in table {
+        let card_index = card.number - 1;
+        let wins = card_wins(&card);
+
+        // Only elements that appeared *before* the current card may copy it,
+        // so when processing the n-th card, we already know how many copies of
+        // it were created.
+        let copies_to_process = copies[card_index];
+
+        for _ in 0..copies_to_process {
+            let lo = card_index + 1;
+            let hi = lo + wins;
+            // Registers the copies (of the successive elements) winned by the
+            // current card.
+            //
+            // Notice, due to this outer `for`, that we register the wins for
+            // each one of the current card's copies.
+            for i in lo..hi {
+                if let Some(num) = copies.get_mut(i) {
+                    *num += 1;
+                }
+            }
+        }
+    }
+
+    copies.into_iter().sum()
 }
 
 fn main() {
@@ -29,9 +66,9 @@ fn main() {
 #[derive(Debug)]
 struct Card {
     #[allow(dead_code)]
-    number: u32,
-    winning: Vec<u32>,
-    have: Vec<u32>,
+    number: usize,
+    winning: Vec<usize>,
+    have: Vec<usize>,
 }
 
 mod parsers {
@@ -76,11 +113,11 @@ mod parsers {
         )(input)
     }
 
-    fn number_list(input: &str) -> IResult<&str, Vec<u32>> {
+    fn number_list(input: &str) -> IResult<&str, Vec<usize>> {
         delimited(space0, separated_list1(many1(tag(" ")), number), space0)(input)
     }
 
-    fn number(input: &str) -> IResult<&str, u32> {
+    fn number(input: &str) -> IResult<&str, usize> {
         map_res(recognize(digit1), str::parse)(input)
     }
 }
@@ -117,13 +154,13 @@ Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
 Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"
             ),
-            000
+            30
         );
     }
 
     #[test]
     fn test_answers() {
         assert_eq!(part1(INPUT), 21105);
-        assert_eq!(part2(INPUT), 0);
+        assert_eq!(part2(INPUT), 5329815);
     }
 }
