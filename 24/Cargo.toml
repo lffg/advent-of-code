@@ -1,0 +1,13 @@
+[workspace]
+members = ["day*"]
+resolver = "2"
+
+[workspace.dependencies]
+regex = "1.11.1"
+
+[workspace.lints.clippy]
+# Groups
+all = "warn"
+pedantic = "warn"
+# Individual lints
+wildcard_imports = { level = "allow", priority = 2 }

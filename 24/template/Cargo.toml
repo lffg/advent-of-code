@@ -1,0 +1,13 @@
+[package]
+name = "{name}"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "{name}"
+path = "main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
